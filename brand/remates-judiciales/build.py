@@ -1,17 +1,21 @@
-"""Genera los logos propuestos para Abogados Remates Judiciales (SVG con texto
-convertido a trazos) y la página de propuesta.
+"""Genera los logos propuestos para Abogados Remates Judiciales y la página
+de propuesta. Todo el texto de los logos queda convertido a trazos.
 
 Uso:  python3 brand/remates-judiciales/build.py
-Requiere: fonttools, brotli, pillow.
+Requiere: fonttools, brotli, uharfbuzz, skia-pathops, pillow.
 """
 import base64
+import glob
 import io
+import math
 import os
+from functools import reduce
 
-from fontTools.pens.boundsPen import BoundsPen
+import uharfbuzz as hb
 from fontTools.pens.svgPathPen import SVGPathPen
 from fontTools.pens.transformPen import TransformPen
 from fontTools.ttLib import TTFont
+from pathops import Path, PathOp, op
 from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -19,8 +23,6 @@ BRAND = os.path.dirname(HERE)
 
 NAVY = "#222B53"   # azul compartido por las marcas del grupo
 GREY = "#6E6D6D"   # gris del texto secundario en los logos actuales
-GOLD = "#EAB350"   # acento de Cáceres & Camiruaga
-TERRA = "#DB7545"  # acento de Inversiones Cáceres
 
 # Acentos candidatos para la marca nueva: (sobre blanco, sobre azul)
 ACCENTS = {
@@ -28,256 +30,324 @@ ACCENTS = {
     "burdeos": ("#8C2F3C", "#E08D99"),
     "acero": ("#3A6EA5", "#8DB4DC"),
 }
+NAME = "Abogados Remates Judiciales"
+
+
+# ------------------------------------------------------------ geometría
+
+K = 0.5522847498
 
 
 def num(v):
     return f"{v:.2f}".rstrip("0").rstrip(".")
 
 
+def rrect(x, y, w, h, r=0.0):
+    p = Path()
+    if r <= 0:
+        p.moveTo(x, y); p.lineTo(x + w, y); p.lineTo(x + w, y + h); p.lineTo(x, y + h); p.close()
+        return p
+    k = r * K
+    p.moveTo(x + r, y)
+    p.lineTo(x + w - r, y); p.cubicTo(x + w - r + k, y, x + w, y + r - k, x + w, y + r)
+    p.lineTo(x + w, y + h - r); p.cubicTo(x + w, y + h - r + k, x + w - r + k, y + h, x + w - r, y + h)
+    p.lineTo(x + r, y + h); p.cubicTo(x + r - k, y + h, x, y + h - r + k, x, y + h - r)
+    p.lineTo(x, y + r); p.cubicTo(x, y + r - k, x + r - k, y, x + r, y)
+    p.close()
+    return p
+
+
+def circle(cx, cy, r):
+    k = r * K
+    p = Path()
+    p.moveTo(cx + r, cy)
+    p.cubicTo(cx + r, cy + k, cx + k, cy + r, cx, cy + r)
+    p.cubicTo(cx - k, cy + r, cx - r, cy + k, cx - r, cy)
+    p.cubicTo(cx - r, cy - k, cx - k, cy - r, cx, cy - r)
+    p.cubicTo(cx + k, cy - r, cx + r, cy - k, cx + r, cy)
+    p.close()
+    return p
+
+
+def union(*paths):
+    return reduce(lambda a, c: op(a, c, PathOp.UNION), paths)
+
+
+def minus(a, *others):
+    return reduce(lambda x, c: op(x, c, PathOp.DIFFERENCE), others, a)
+
+
+def inter(a, c):
+    return op(a, c, PathOp.INTERSECTION)
+
+
+def affine(p, a=1.0, b=0.0, c=0.0, d=1.0, e=0.0, f=0.0):
+    return p.transform(a, b, c, d, e, f)
+
+
+def rotate(p, deg):
+    t = math.radians(deg)
+    return affine(p, math.cos(t), math.sin(t), -math.sin(t), math.cos(t))
+
+
+def place(p, x, y, s=1.0):
+    return affine(p, s, 0, 0, s, x, y)
+
+
+def d_of(p):
+    pen = SVGPathPen(None, ntos=num)
+    p.draw(pen)
+    return pen.getCommands()
+
+
+def bbox(paths):
+    bs = [p.bounds for p in paths]
+    return (min(b[0] for b in bs), min(b[1] for b in bs), max(b[2] for b in bs), max(b[3] for b in bs))
+
+
+# ------------------------------------------------------------ tipografía
+
 class Face:
+    """Fuente con kerning real (HarfBuzz) y salida como trazos."""
+
     def __init__(self, path):
         self.font = TTFont(path)
         self.glyphs = self.font.getGlyphSet()
-        self.cmap = self.font.getBestCmap()
+        self.order = self.font.getGlyphOrder()
         self.upm = self.font["head"].unitsPerEm
+        raw = TTFont(path)
+        raw.flavor = None
+        buf = io.BytesIO()
+        raw.save(buf)
+        self.hb = hb.Font(hb.Face(buf.getvalue()))
 
-    def glyph(self, ch):
-        return self.glyphs[self.cmap[ord(ch)]]
+    def shape(self, text):
+        buf = hb.Buffer()
+        buf.add_str(text)
+        buf.guess_segment_properties()
+        hb.shape(self.hb, buf, {"kern": True, "liga": False})
+        return [(self.order[i.codepoint], pos.x_advance) for i, pos in zip(buf.glyph_infos, buf.glyph_positions)]
 
     def width(self, text, size, track=0.0):
         s = size / self.upm
-        return sum(self.glyph(c).width for c in text) * s + track * size * (len(text) - 1)
+        return sum(adv for _, adv in self.shape(text)) * s + track * size * (len(text) - 1)
 
-    def bounds(self, ch, size):
-        pen = BoundsPen(self.glyphs)
-        self.glyph(ch).draw(pen)
-        s = size / self.upm
-        x0, y0, x1, y1 = pen.bounds
-        return x0 * s, y0 * s, x1 * s, y1 * s
+    def cap(self, size):
+        return self.font["OS/2"].sCapHeight * size / self.upm
 
-    def path(self, text, size, x, y, track=0.0, anchor="start"):
-        """Texto como trazos. (x, y) es la línea base; devuelve (d, ancho)."""
+    def text(self, text, size, x, y, track=0.0, anchor="start"):
+        """Texto como Path. (x, y) es la línea base. Devuelve (path, ancho)."""
         w = self.width(text, size, track)
         if anchor == "middle":
             x -= w / 2
         elif anchor == "end":
             x -= w
         s = size / self.upm
-        out = []
-        for c in text:
-            g = self.glyph(c)
-            pen = SVGPathPen(self.glyphs, ntos=num)
-            g.draw(TransformPen(pen, (s, 0, 0, -s, x, y)))
-            cmds = pen.getCommands()
-            if cmds:
-                out.append(cmds)
-            x += g.width * s + track * size
-        return "".join(out), w
+        out = Path()
+        for name, adv in self.shape(text):
+            self.glyphs[name].draw(TransformPen(out.getPen(), (s, 0, 0, -s, x, y)))
+            x += adv * s + track * size
+        return out, w
 
-    def fit_track(self, text, size, target):
-        """Espaciado (en em) para que el texto mida `target` de ancho."""
-        return (target - self.width(text, size)) / (size * (len(text) - 1))
-
-    def fit_size(self, text, target, track):
-        return target / self.width(text, 1.0, track)
+    def glyph(self, ch):
+        """Glifo en unidades de fuente, con el eje y hacia abajo y la línea base en 0."""
+        name = self.font.getBestCmap()[ord(ch)]
+        out = Path()
+        self.glyphs[name].draw(TransformPen(out.getPen(), (1, 0, 0, -1, 0, 0)))
+        return out
 
 
 SERIF = Face(os.path.join(HERE, "fonts", "texgyrepagella-regular.otf"))
-SANS = Face(os.path.join(HERE, "fonts", "montserrat-latin-400-normal.woff2"))
-SANS_M = Face(os.path.join(HERE, "fonts", "montserrat-latin-500-normal.woff2"))
+SANS = Face(os.path.join(HERE, "fonts", "montserrat-latin-500-normal.woff2"))
 
+
+# ------------------------------------------------------------ símbolos
+
+def mark_r(height=100.0):
+    """La R que remata: la pata de la R es el mango de un martillo de remate.
+
+    Devuelve las piezas con la R apoyada en y = `height` (línea base) y su
+    borde superior en y = 0; la cabeza del martillo baja un poco de la base.
+    """
+    g = SERIF.glyph("R")
+    # La pata de la R de Pagella: eje y ángulo medidos sobre el propio glifo.
+    theta = math.atan2(200.0, 151.0)
+    ax, ay = 436.5, -200.0
+    ca, sa = math.cos(theta), math.sin(theta)
+
+    def local(p):  # marco local: x a lo largo de la pata, y transversal
+        return affine(p, ca, sa, -sa, ca, ax, ay)
+
+    length, thick = 292.0, 122.0      # cabeza: largo (transversal) y grosor
+    cap, gap, inset = 50.0, 10.0, 7.0
+    drop = 55.0                       # cuánto baja la cabeza de la línea base
+    t0 = (200.0 + drop - (length / 2) * ca) / sa - thick
+    # Se corta la pata original donde empieza la cabeza; el pie del asta no se toca.
+    beyond = inter(local(rrect(t0 + inset + 1, -500, 1200, 1000)), rrect(300, -600, 1200, 1200))
+    letter = minus(g, beyond)
+    head = union(
+        rrect(t0, -length / 2, thick, cap, 10),
+        rrect(t0, length / 2 - cap, thick, cap, 10),
+        rrect(t0 + inset, -length / 2 + cap + gap, thick - 2 * inset, length - 2 * (cap + gap), 3),
+    )
+    head = local(head)
+    cap_h = 692.0
+    s = height / cap_h
+    x0 = bbox([letter])[0]
+    letter = place(letter, -x0 * s, height, s)
+    head = place(head, -x0 * s, height, s)
+    x_min, y_min, x_max, y_max = bbox([letter, head])
+    return {"main": letter, "accent": head, "w": x_max, "h": y_max, "base": height}
+
+
+def mark_key(height=100.0):
+    """El martillo que entrega la llave: un martillo cuyo mango termina en llave."""
+    hw, hh, cap, gap = 84.0, 36.0, 14.0, 3.6
+    sw, shaft = 10.0, 68.0
+    top = hh / 2
+    end = top + shaft
+    head = union(
+        rrect(-hw / 2, -hh / 2, cap, hh, 3),
+        rrect(hw / 2 - cap, -hh / 2, cap, hh, 3),
+        rrect(-hw / 2 + cap + gap, -hh / 2 + 1.5, hw - 2 * (cap + gap), hh - 3, 1.2),
+    )
+    body = union(
+        head,
+        rrect(-sw / 2 - 3.5, top - 1.5, sw + 7, 7.5, 1.2),
+        rrect(-sw / 2, top, sw, shaft - sw / 2),
+        rrect(-sw / 2, end - sw, sw, sw, sw / 2),
+    )
+    teeth = union(
+        rrect(-sw / 2 - 17, end - 34, 18, 10, 1),
+        rrect(-sw / 2 - 12, end - 19, 13, 10, 1),
+    )
+    body, teeth = rotate(body, -45), rotate(teeth, -45)
+    x0, y0, x1, y1 = bbox([body, teeth])
+    s = height / (y1 - y0)
+    body = place(body, -x0 * s, -y0 * s, s)
+    teeth = place(teeth, -x0 * s, -y0 * s, s)
+    return {"main": body, "accent": teeth, "w": (x1 - x0) * s, "h": height, "base": height}
+
+
+MARKS = {"r": mark_r, "llave": mark_key}
+
+
+# ------------------------------------------------------------ armado
 
 def palette(mode, accent):
     on_white, on_navy = ACCENTS[accent]
     if mode == "color":
-        return dict(fg=NAVY, sub=GREY, acc=on_white, bg="#FFFFFF", band=on_white)
+        return dict(fg=NAVY, sub=GREY, acc=on_white, bg="#FFFFFF")
     if mode == "negativo":
-        return dict(fg="#FFFFFF", sub="#C9CDDD", acc=on_navy, bg=NAVY, band=on_navy)
+        return dict(fg="#FFFFFF", sub="#C9CDDD", acc=on_navy, bg=NAVY)
     if mode == "mono":
-        return dict(fg="#111111", sub="#111111", acc="#111111", bg="#FFFFFF", band="#FFFFFF")
+        return dict(fg="#111111", sub="#111111", acc="#111111", bg="#FFFFFF")
     raise ValueError(mode)
 
 
-def svg(w, h, body, title):
-    return (
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {num(w)} {num(h)}" '
-        f'role="img" aria-label="{title}"><title>{title}</title>{body}</svg>'
-    )
+class Art:
+    """Lienzo mínimo: acumula trazos por color y entrega un SVG ajustado."""
+
+    def __init__(self):
+        self.items = []
+
+    def add(self, path, fill, opacity=None):
+        self.items.append((path, fill, opacity))
+
+    def svg(self, pad=0.0, title=NAME, bg=None, radius=0.0, box=None):
+        x0, y0, x1, y1 = box or bbox([p for p, _, _ in self.items])
+        x0 -= pad; y0 -= pad; x1 += pad; y1 += pad
+        w, h = x1 - x0, y1 - y0
+        body = ""
+        if bg:
+            rx = f' rx="{num(radius)}"' if radius else ""
+            body += f'<rect x="{num(x0)}" y="{num(y0)}" width="{num(w)}" height="{num(h)}"{rx} fill="{bg}"/>'
+        for p, fill, opacity in self.items:
+            o = f' opacity="{opacity}"' if opacity else ""
+            body += f'<path d="{d_of(p)}" fill="{fill}"{o}/>'
+        return (
+            f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{num(x0)} {num(y0)} {num(w)} {num(h)}" '
+            f'role="img" aria-label="{title}"><title>{title}</title>{body}</svg>'
+        )
 
 
-def p(d, fill, extra=""):
-    return f'<path d="{d}" fill="{fill}"{extra}/>'
-
-
-def rect(x, y, w, h, fill, rx=0, extra=""):
-    r = f' rx="{num(rx)}"' if rx else ""
-    return f'<rect x="{num(x)}" y="{num(y)}" width="{num(w)}" height="{num(h)}"{r} fill="{fill}"{extra}/>'
-
-
-# ---------------------------------------------------------------- símbolos
-
-def monogram_rj(c, size=150.0):
-    """R y J superpuestas, como las CC e IC del grupo. Devuelve (body, w, h)."""
-    rx0, _, rx1, rcap = SERIF.bounds("R", size)
-    jx0, jy0, jx1, _ = SERIF.bounds("J", size)
-    pad = size * 0.04
-    base = pad + rcap                      # línea base de la R
-    r_x = pad - rx0
-    j_drop = size * 0.11                   # la J baja respecto de la R
-    j_x = r_x + rx1 - size * 0.20 - jx0    # la J muerde la pata de la R
-    j_base = base + j_drop
-    d_r, _ = SERIF.path("R", size, r_x, base)
-    d_j, _ = SERIF.path("J", size, j_x, j_base)
-    halo = f' stroke="{c["bg"]}" stroke-width="{num(size * 0.05)}" stroke-linejoin="round" paint-order="stroke"'
-    body = p(d_r, c["fg"]) + p(d_j, c["acc"], halo)
-    w = j_x + jx1 + pad
-    h = j_base - jy0 + pad
-    return body, w, h
-
-
-def gavel(c, s=1.0, ox=0.0, oy=0.0):
-    """Martillo de remate sobre su base. Caja de 100 x 100 a escala 1."""
-    g = (
-        f'<g transform="translate({num(ox)} {num(oy)}) scale({num(s)})">'
-        '<g transform="rotate(-40 44 46)">'
-        + rect(15, 26, 58, 28, c["fg"], 4.5)
-        + rect(22.5, 26, 5.5, 28, c["band"])
-        + rect(60, 26, 5.5, 28, c["band"])
-        + rect(39.5, 54, 9, 44, c["fg"], 4.5)
-        + "</g>"
-        + rect(44, 88.5, 52, 8.5, c["acc"], 4.25)
-        + "</g>"
-    )
-    return g
-
-
-# ---------------------------------------------------------------- lockups
-
-def bars_abogados(c, cx, base, size=13.5, track=0.42):
-    """« | ABOGADOS | » con barras de acento, igual que el logo del estudio."""
-    d, w = SANS.path("ABOGADOS", size, cx, base, track, "middle")
-    cap = size * 0.70
-    gap = size * 0.95
-    bar_w = size * 0.11
-    top = base - cap - size * 0.38
-    bh = cap + size * 0.76
-    return (
-        p(d, c["sub"])
-        + rect(cx - w / 2 - gap - bar_w, top, bar_w, bh, c["acc"])
-        + rect(cx + w / 2 + gap, top, bar_w, bh, c["acc"])
-    ), w + 2 * (gap + bar_w)
-
-
-def logo_a(mode="color", accent="verde"):
-    """A · Monograma: el más cercano a la familia."""
+def symbol(kind, mode="color", accent="verde"):
     c = palette(mode, accent)
-    mono, mw, mh = monogram_rj(c, 132)
-    size, track = 31.0, 0.24
-    tw = SERIF.width("REMATES JUDICIALES", size, track)
-    W = tw + 24
-    cx = W / 2
-    y_text = mh + 44
-    d, _ = SERIF.path("REMATES JUDICIALES", size, cx, y_text, track, "middle")
-    sub, _ = bars_abogados(c, cx, y_text + 33)
-    body = f'<g transform="translate({num(cx - mw / 2)} 0)">{mono}</g>' + p(d, c["fg"]) + sub
-    return svg(W, y_text + 33 + 16, body, "Abogados Remates Judiciales")
+    m = MARKS[kind](100.0)
+    art = Art()
+    art.add(m["main"], c["fg"])
+    art.add(m["accent"], c["acc"])
+    return art.svg(pad=2)
 
 
-def logo_b(mode="color", accent="verde"):
-    """B · Martillo: símbolo propio, lectura inmediata."""
+def horizontal(kind, mode="color", accent="verde", endorsed=False):
+    """Símbolo a la izquierda y el nombre en dos líneas, como el logo de inversiones."""
     c = palette(mode, accent)
-    icon = 92.0
-    x_rule = icon + 18
-    x_text = x_rule + 20
-    size, track = 31.0, 0.20
-    d1, w1 = SERIF.path("REMATES JUDICIALES", size, x_text, 47, track)
-    d2, _ = SANS_M.path("ABOGADOS", 12.5, x_text + 1, 74, 0.46)
-    body = (
-        gavel(c, icon / 100.0, 0, 0)
-        + rect(x_rule, 12, 1.2, 70, c["sub"], 0, ' opacity="0.55"')
-        + p(d1, c["fg"])
-        + p(d2, c["sub"])
-    )
-    return svg(x_text + w1 + 6, icon + 2, body, "Abogados Remates Judiciales")
+    m = MARKS[kind](100.0)
+    art = Art()
+    art.add(m["main"], c["fg"])
+    art.add(m["accent"], c["acc"])
+    x_rule = m["w"] + 17
+    art.add(rrect(x_rule, 0, 1.1, 100), c["sub"], 0.5)
+    x = x_rule + 19
+    size, track = 33.0, 0.2
+    cap = SERIF.cap(size)
+    l1, w1 = SERIF.text("REMATES", size, x, cap, track)
+    l2, w2 = SERIF.text("JUDICIALES", size, x, cap * 2 + 15.5, track)
+    art.add(l1, c["fg"]); art.add(l2, c["fg"])
+    y_rule = cap * 2 + 15.5 + 14
+    art.add(rrect(x + 1, y_rule, 30, 2.2), c["acc"])
+    sub, _ = SANS.text("ABOGADOS", 12.4, x + 1, 100, 0.46)
+    art.add(sub, c["sub"])
+    if endorsed:
+        y = 100 + 36
+        right = x + max(w1, w2)
+        art.add(rrect(x + 1, y - 20, right - x - 1, 0.8), c["sub"], 0.45)
+        e1, we = SANS.text("CON EL RESPALDO DE", 7.4, x + 1, y, 0.3)
+        e2, _ = SERIF.text("CÁCERES & CAMIRUAGA", 11.4, x + 1, y + 17, 0.2)
+        art.add(e1, c["sub"]); art.add(e2, c["fg"])
+        del we
+    return art.svg(pad=3)
 
 
-def logo_c(mode="color", accent="verde"):
-    """C · Tipográfico: bloque de tres líneas del mismo ancho."""
+def vertical(kind, mode="color", accent="verde"):
+    """Símbolo arriba, nombre en una línea y «| ABOGADOS |», como el logo del estudio."""
     c = palette(mode, accent)
-    x = 4.0
-    size1, track1 = 70.0, 0.10
-    w = SERIF.width("REMATES", size1, track1)
-    size2 = SERIF.fit_size("JUDICIALES", w, track1)
-    cap1 = SERIF.bounds("R", size1)[3]
-    cap2 = SERIF.bounds("J", size2)[3]
-    y1 = 6 + cap1
-    y2 = y1 + 24 + cap2
-    y_sub = y2 + 34
-    d1, _ = SERIF.path("REMATES", size1, x, y1, track1)
-    d2, _ = SERIF.path("JUDICIALES", size2, x, y2, track1)
-    size3 = 14.0
-    d3, w3 = SANS_M.path("ABOGADOS", size3, x + 1, y_sub, 0.46)
-    # la línea de acento ocupa el ancho que deja la palabra
-    x_rule = x + w3 + 20
-    body = (
-        p(d1, c["fg"])
-        + p(d2, c["fg"])
-        + p(d3, c["sub"])
-        + rect(x_rule, y_sub - 6.4, x + w - x_rule - 2, 2.6, c["acc"])
-    )
-    return svg(w + 8, y_sub + 10, body, "Abogados Remates Judiciales")
+    m = MARKS[kind](112.0)
+    size, track = 29.0, 0.24
+    w = SERIF.width("REMATES JUDICIALES", size, track)
+    cx = w / 2
+    art = Art()
+    art.add(place(m["main"], cx - m["w"] / 2, 0), c["fg"])
+    art.add(place(m["accent"], cx - m["w"] / 2, 0), c["acc"])
+    y = m["h"] + 46
+    name, _ = SERIF.text("REMATES JUDICIALES", size, cx, y, track, "middle")
+    art.add(name, c["fg"])
+    sub_size = 12.6
+    y2 = y + 31
+    sub, ws = SANS.text("ABOGADOS", sub_size, cx, y2, 0.44, "middle")
+    art.add(sub, c["sub"])
+    cap = SANS.cap(sub_size)
+    bar_h = cap + 9.5
+    for bx in (cx - ws / 2 - 13.5, cx + ws / 2 + 12):
+        art.add(rrect(bx, y2 - cap - 4.75, 1.5, bar_h), c["acc"])
+    return art.svg(pad=3)
 
 
-def icon_a(mode="color", accent="verde"):
-    c = palette(mode, accent)
-    mono, mw, mh = monogram_rj(c, 150)
-    side = max(mw, mh) + 24
-    body = f'<g transform="translate({num((side - mw) / 2)} {num((side - mh) / 2)})">{mono}</g>'
-    return svg(side, side, body, "Remates Judiciales")
+def avatar(kind, accent="verde", shape="square"):
+    """Ícono para redes, WhatsApp y pestaña del navegador."""
+    c = palette("negativo", accent)
+    side = 200.0
+    target = 104.0 if kind == "r" else 118.0
+    m = MARKS[kind](target)
+    x = (side - m["w"]) / 2
+    y = (side - m["h"]) / 2
+    art = Art()
+    art.add(circle(side / 2, side / 2, side / 2) if shape == "circle" else rrect(0, 0, side, side, 44), c["bg"])
+    art.add(place(m["main"], x, y), c["fg"])
+    art.add(place(m["accent"], x, y), c["acc"])
+    return art.svg(box=(0, 0, side, side), title="Remates Judiciales")
 
-
-def icon_b(mode="color", accent="verde"):
-    c = palette(mode, accent)
-    return svg(108, 108, gavel(c, 1.0, 3, 2), "Remates Judiciales")
-
-
-def icon_c(mode="negativo", accent="verde"):
-    """Avatar: RJ en caja azul con línea de acento (redes y WhatsApp)."""
-    c = palette(mode, accent)
-    side = 120.0
-    size, track = 58.0, 0.06
-    cap = SERIF.bounds("R", size)[3]
-    base = 28 + cap
-    d, w = SERIF.path("RJ", size, side / 2, base, track, "middle")
-    body = (
-        rect(0, 0, side, side, c["bg"], 18)
-        + p(d, c["fg"])
-        + rect(side / 2 - w / 2 + 2, base + 16, 40, 3.6, c["acc"])
-    )
-    return svg(side, side, body, "Remates Judiciales")
-
-
-def endorsement(mode="color", accent="verde"):
-    """Logo B con la línea de respaldo del estudio."""
-    c = palette(mode, accent)
-    inner = logo_b(mode, accent)
-    vb = inner.split('viewBox="0 0 ')[1].split('"')[0].split()
-    w, h = float(vb[0]), float(vb[1])
-    body = inner.split("</title>")[1].rsplit("</svg>", 1)[0]
-    d1, w1 = SANS_M.path("CON EL RESPALDO DE", 8.6, 0, 0, 0.30)
-    d2, w2 = SERIF.path("CÁCERES & CAMIRUAGA", 13.0, 0, 0, 0.20)
-    y = h + 28
-    x = 130.0
-    line = (
-        rect(x, h + 6, w - x - 6, 0.8, c["sub"], 0, ' opacity="0.45"')
-        + f'<g transform="translate({num(x)} {num(y)})">{p(d1, c["sub"])}</g>'
-        + f'<g transform="translate({num(x + w1 + 10)} {num(y + 0.6)})">{p(d2, c["fg"])}</g>'
-    )
-    del w2
-    return svg(w, y + 10, body + line, "Abogados Remates Judiciales, con el respaldo de Cáceres & Camiruaga")
-
-
-# ---------------------------------------------------------------- salida
 
 def data_uri(rel, max_w):
     im = Image.open(os.path.join(BRAND, rel)).convert("RGBA")
@@ -291,35 +361,38 @@ def data_uri(rel, max_w):
 def main():
     out = os.path.join(HERE, "logos")
     os.makedirs(out, exist_ok=True)
+    for old in glob.glob(os.path.join(out, "*.svg")):
+        os.remove(old)
+
     files = {}
-    for key, fn in (("a", logo_a), ("b", logo_b), ("c", logo_c)):
+    for kind in MARKS:
         for mode in ("color", "negativo", "mono"):
-            files[f"{key}-{mode}"] = fn(mode)
-    files["a-icono"] = icon_a()
-    files["b-icono"] = icon_b()
-    files["c-icono"] = icon_c()
-    files["b-con-respaldo"] = endorsement()
+            files[f"{kind}-simbolo-{mode}"] = symbol(kind, mode)
+            files[f"{kind}-horizontal-{mode}"] = horizontal(kind, mode)
+            files[f"{kind}-vertical-{mode}"] = vertical(kind, mode)
+        files[f"{kind}-avatar"] = avatar(kind)
+        files[f"{kind}-avatar-circular"] = avatar(kind, shape="circle")
+    files["r-horizontal-con-respaldo"] = horizontal("r", endorsed=True)
     for name, content in files.items():
         with open(os.path.join(out, f"remates-judiciales-{name}.svg"), "w", encoding="utf-8") as fh:
             fh.write(content)
 
     slots = dict(files)
-    slots["a-icono-neg"] = icon_a("negativo")
-    slots["b-icono-neg"] = icon_b("negativo")
     for acc in ACCENTS:
-        slots[f"b-color-{acc}"] = logo_b("color", acc)
-        slots[f"b-negativo-{acc}"] = logo_b("negativo", acc)
+        slots[f"r-horizontal-color-{acc}"] = horizontal("r", "color", acc)
+        slots[f"r-avatar-{acc}"] = avatar("r", acc)
     slots["img-cc"] = data_uri("caceres-camiruaga/logo-1-color.png", 900)
-    slots["img-cc-mono"] = data_uri("caceres-camiruaga/logo-3-monograma-color.png", 260)
+    slots["img-cc-mono"] = data_uri("caceres-camiruaga/logo-3-monograma-color.png", 360)
     slots["img-ic"] = data_uri("inversiones-caceres/logo-2-color.png", 900)
+    slots["img-ic-mono"] = data_uri("inversiones-caceres/logo-3-monograma-color.png", 360)
 
     with open(os.path.join(HERE, "propuesta.template.html"), encoding="utf-8") as fh:
         html = fh.read()
-    for key, value in slots.items():
-        html = html.replace("{{" + key + "}}", value)
+    for key in sorted(slots, key=len, reverse=True):
+        html = html.replace("{{" + key + "}}", slots[key])
     if "{{" in html:
-        missing = sorted({html[i + 2:html.index("}}", i)] for i in range(len(html)) if html.startswith("{{", i)})
-        raise SystemExit(f"Faltan valores en la plantilla: {missing}")
+        i = html.index("{{")
+        raise SystemExit(f"Falta un valor en la plantilla: {html[i:html.index('}}', i) + 2]}")
     with open(os.path.join(HERE, "propuesta.html"), "w", encoding="utf-8") as fh:
         fh.write(html)
     print(f"{len(files)} logos y propuesta.html generados")

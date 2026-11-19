@@ -13,97 +13,136 @@
     --paper: #F5F6FA;
     --card: #FFFFFF;
     --acc: #1F7A6B;
+    --acc-l: #5CC2AE;
     --serif: "Palatino Linotype", "Book Antiqua", Palatino, "TeX Gyre Pagella", Georgia, serif;
     --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   }
   * { box-sizing: border-box; }
   body {
-    margin: 0;
-    background: var(--paper);
-    color: var(--ink);
-    font: 16px/1.6 var(--sans);
-    -webkit-font-smoothing: antialiased;
+    margin: 0; background: var(--paper); color: var(--ink);
+    font: 16px/1.6 var(--sans); -webkit-font-smoothing: antialiased;
   }
+  svg, img { display: block; width: 100%; height: auto; }
   .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
-  header.hero { background: var(--navy); color: #fff; padding: 72px 0 64px; }
-  .eyebrow {
-    font-size: 12px; letter-spacing: .22em; text-transform: uppercase;
-    color: #5CC2AE; margin: 0 0 18px;
-  }
-  h1 {
-    font: 400 clamp(34px, 6vw, 56px)/1.1 var(--serif);
-    letter-spacing: .01em; margin: 0 0 20px; text-wrap: balance;
-  }
-  .lead { font-size: clamp(17px, 2.2vw, 20px); color: #D5D9E8; max-width: 44em; margin: 0 0 28px; }
+
+  header.hero { background: var(--navy); color: #fff; padding: 68px 0 60px; }
+  .hero .wrap { display: flex; align-items: center; gap: 48px; }
+  .hero-text { flex: 1; min-width: 0; }
+  .hero-mark { flex: none; width: 150px; }
+  .eyebrow { font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--acc-l); margin: 0 0 18px; }
+  h1 { font: 400 clamp(34px, 6vw, 56px)/1.1 var(--serif); letter-spacing: .01em; margin: 0 0 20px; text-wrap: balance; }
+  .lead { font-size: clamp(17px, 2.2vw, 20px); color: #D5D9E8; max-width: 40em; margin: 0 0 26px; }
   .meta { font-size: 13px; color: #A9AFC8; margin: 0; }
+
   section { padding: 64px 0 8px; }
-  .num {
-    font-size: 12px; letter-spacing: .22em; text-transform: uppercase;
-    color: var(--acc); margin: 0 0 8px; font-weight: 600;
-  }
-  h2 { font: 400 clamp(26px, 4vw, 34px)/1.2 var(--serif); margin: 0 0 12px; text-wrap: balance; }
-  h3 { font: 400 24px/1.25 var(--serif); margin: 0 0 4px; }
+  .num { font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--acc); margin: 0 0 8px; font-weight: 600; }
+  h2 { font: 400 clamp(26px, 4vw, 36px)/1.2 var(--serif); margin: 0 0 12px; text-wrap: balance; }
+  h3 { font: 600 13px/1.3 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 36px 0 12px; }
   p { margin: 0 0 16px; }
   .intro { color: var(--muted); max-width: 46em; margin-bottom: 28px; }
+  .head-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-bottom: 12px; }
+  .head-row h2 { margin: 0; }
+  .tag {
+    font-size: 11px; letter-spacing: .14em; text-transform: uppercase; font-weight: 600;
+    color: #fff; background: var(--acc); border-radius: 99px; padding: 4px 12px;
+  }
+  .tag.alt { color: var(--muted); background: none; border: 1px solid currentColor; }
+
   .grid { display: grid; gap: 16px; }
   .g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .panel {
     background: var(--card); border: 1px solid var(--line); border-radius: 12px;
-    padding: clamp(24px, 5vw, 44px); display: grid; place-items: center; min-height: 190px;
+    padding: clamp(24px, 5vw, 44px); display: grid; place-items: center; min-height: 200px;
   }
   .panel.navy { background: var(--navy); border-color: var(--navy); }
-  .panel svg, .panel img { display: block; width: 100%; height: auto; }
-  .w-a, .w-b, .w-c { width: 100%; }
-  .w-a { max-width: 310px; } .w-b { max-width: 400px; } .w-c { max-width: 260px; }
-  .w-fam { max-width: 340px; }
-  .g3 .panel { padding: 28px 22px; min-height: 150px; }
+  .panel > div { width: 100%; }
+  .w-h { max-width: 330px; } .w-v { max-width: 320px; } .w-fam { max-width: 340px; }
+  .w-sym { max-width: 190px; } .w-mono { max-width: 150px; }
   figure { margin: 0; }
   figcaption { font-size: 13px; color: var(--muted); margin-top: 8px; }
+  figcaption b { color: var(--ink); }
+
   .facts { margin-top: 16px; }
   .fact { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
   .fact h4 { font: 600 14px/1.3 var(--sans); margin: 0 0 12px; }
   .fact p { font-size: 14px; color: var(--muted); margin: 0; }
   .sw { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 14px; }
-  .sw i {
-    flex: none; width: 34px; height: 34px; border-radius: 8px; background: var(--c);
-    border: 1px solid rgba(0, 0, 0, .08);
-  }
+  .sw i { flex: none; width: 34px; height: 34px; border-radius: 8px; background: var(--c); border: 1px solid rgba(0, 0, 0, .08); }
   .sw b { font-weight: 600; display: block; line-height: 1.2; }
   .sw code { font: 12px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--muted); }
   .type-serif { font: 400 22px/1.2 var(--serif); letter-spacing: .16em; text-transform: uppercase; margin-bottom: 6px; }
   .type-sans { font-size: 13px; letter-spacing: .32em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
-  .palette { display: grid; grid-template-columns: 2fr 1.3fr 1fr 1fr; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); }
-  .palette div { padding: 64px 16px 14px; font-size: 13px; line-height: 1.35; }
-  .palette b { display: block; }
-  .dir { margin-top: 36px; padding-top: 28px; border-top: 1px solid var(--line); }
-  .dir:first-of-type { border-top: 0; padding-top: 0; }
-  .dir-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; margin-bottom: 4px; }
-  .tag {
-    font-size: 11px; letter-spacing: .14em; text-transform: uppercase; font-weight: 600;
-    color: var(--acc); border: 1px solid currentColor; border-radius: 99px; padding: 3px 10px;
+
+  .idea { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 16px; }
+  .idea .panel { min-height: 320px; }
+  .idea ol { margin: 0; padding: 0; list-style: none; counter-reset: i; display: grid; gap: 12px; align-content: center; }
+  .idea li {
+    counter-increment: i; background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px 20px 18px 60px; position: relative; font-size: 15.5px;
   }
-  .dir > p.idea { color: var(--muted); max-width: 46em; margin-bottom: 18px; }
-  .below { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 16px; margin-top: 16px; }
+  .idea li::before {
+    content: counter(i); position: absolute; left: 18px; top: 17px; width: 28px; height: 28px; border-radius: 50%;
+    background: var(--navy); color: #fff; display: grid; place-items: center; font: 400 15px/1 var(--serif);
+  }
+  .idea li b { display: block; }
+  .idea li span { color: var(--muted); }
+
+  .family { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .family .panel { min-height: 0; aspect-ratio: 1.25; padding: 24px; }
+  .family .panel > div { max-width: 120px; }
+  .family .panel.new { border: 2px solid var(--acc); }
+
+  .small { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 16px; }
   .sizes {
-    background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px;
-    display: flex; align-items: flex-end; gap: 18px; flex-wrap: wrap;
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 22px 24px;
+    display: flex; align-items: flex-end; gap: 20px; flex-wrap: wrap;
   }
-  .sizes span { display: block; }
-  .sizes svg { display: block; width: 100%; height: auto; }
-  .s96 { width: 88px; } .s40 { width: 40px; } .s20 { width: 20px; }
+  .sizes span { display: block; flex: none; }
+  .s96 { width: 96px; } .s48 { width: 48px; } .s24 { width: 24px; } .s16 { width: 16px; }
   .sizes small { flex-basis: 100%; font-size: 12px; color: var(--muted); }
-  .proscons { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; font-size: 14.5px; }
-  .proscons dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; }
+
+  /* aplicaciones */
+  .mock-web { background: var(--navy); border-radius: 12px; overflow: hidden; color: #fff; }
+  .mock-web .bar { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 22px 32px; border-bottom: 1px solid rgba(255, 255, 255, .12); }
+  .mock-web .logo { width: 190px; flex: none; }
+  .mock-web nav { display: flex; align-items: center; gap: 26px; font-size: 13.5px; color: #C9CDDD; }
+  .mock-web nav .btn { color: var(--navy); background: var(--acc-l); border-radius: 6px; padding: 8px 16px; font-weight: 600; }
+  .mock-web .copy { padding: 54px 32px 64px; max-width: 640px; }
+  .mock-web .kicker { font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--acc-l); margin: 0 0 14px; }
+  .mock-web h4 { font: 400 clamp(26px, 4.2vw, 40px)/1.15 var(--serif); margin: 0 0 26px; text-wrap: balance; }
+  .mock-web .cta { display: inline-block; border: 1px solid rgba(255, 255, 255, .5); border-radius: 6px; padding: 11px 20px; font-size: 14px; }
+  .apps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
+  .app { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 22px; display: grid; grid-template-columns: minmax(0, 1fr); align-content: center; gap: 14px; min-width: 0; }
+  .chat { display: flex; align-items: center; gap: 14px; }
+  .chat .av { width: 52px; flex: none; }
+  .chat .tx { flex: 1; min-width: 0; }
+  .chat b { display: block; font-size: 15px; }
+  .chat span { display: block; font-size: 14px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chat time { font-size: 12px; color: var(--muted); align-self: flex-start; }
+  .tab { background: #E6E8F0; border-radius: 10px 10px 0 0; padding: 8px 10px 0; }
+  .tab div { background: #fff; border-radius: 8px 8px 0 0; padding: 9px 14px; display: inline-flex; align-items: center; gap: 9px; font-size: 13px; max-width: 100%; }
+  .tab i { width: 16px; flex: none; }
+  .tab span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .bcard { aspect-ratio: 85 / 55; border-radius: 8px; display: grid; place-items: center; padding: 10%; box-shadow: 0 6px 18px rgba(27, 33, 64, .14); }
+  .bcard.front { background: var(--navy); }
+  .bcard.front > div { width: 34%; }
+  .bcard.back { background: #fff; border: 1px solid var(--line); align-content: center; justify-items: start; gap: 12%; padding: 9% 10%; }
+  .bcard.back > div { width: 78%; }
+  .bcard.back p { width: 100%; margin: 0; display: grid; gap: 5px; }
+  .bcard.back p i { display: block; height: 4px; border-radius: 2px; background: var(--line); }
+  .bcard.back p i:nth-child(1) { width: 52%; background: #B9BED0; }
+  .bcard.back p i:nth-child(2) { width: 38%; }
+  .bcard.back p i:nth-child(3) { width: 44%; }
+  .app small { font-size: 12px; color: var(--muted); }
+
+  .proscons { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px 22px; font-size: 14.5px; margin-top: 16px; }
+  .proscons dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 10px 16px; }
   .proscons dt { font-weight: 600; white-space: nowrap; }
   .proscons dd { margin: 0; color: var(--muted); }
-  .reco {
-    margin-top: 36px; background: var(--card); border: 1px solid var(--line);
-    border-left: 4px solid var(--acc); border-radius: 12px; padding: 22px 24px;
-  }
-  .reco h3 { font-size: 21px; margin-bottom: 8px; }
-  .reco p { margin: 0; color: var(--muted); max-width: 48em; }
-  .opt figcaption b { color: var(--ink); }
+
+  .opt .panel { min-height: 0; padding: 30px 24px; }
   ol.decide { margin: 0; padding: 0; list-style: none; counter-reset: d; display: grid; gap: 12px; }
   ol.decide li {
     counter-increment: d; background: var(--card); border: 1px solid var(--line); border-radius: 12px;
@@ -118,17 +157,25 @@
   ol.decide span { color: var(--muted); font-size: 14.5px; }
   .note { font-size: 13.5px; color: var(--muted); margin-top: 22px; max-width: 52em; }
   footer { margin-top: 64px; padding: 28px 0 44px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+
   @media (max-width: 760px) {
-    .g2, .g3, .below { grid-template-columns: 1fr; }
-    .palette { grid-template-columns: 1fr 1fr; }
+    .g2, .g3, .idea, .small, .apps { grid-template-columns: 1fr; }
+    .family { gap: 8px; }
+    .family .panel { aspect-ratio: auto; padding: 18px 10px; }
+    .family .panel > div { max-width: 64px; }
+    .hero-mark { display: none; }
     header.hero { padding: 48px 0 44px; }
     section { padding-top: 48px; }
     .wrap { padding: 0 16px; }
+    .mock-web .bar { padding: 16px 18px; }
+    .mock-web .logo { width: 150px; }
+    .mock-web nav span:not(.btn) { display: none; }
+    .mock-web .copy { padding: 36px 18px 44px; }
+    .idea .panel { min-height: 240px; }
   }
   @media print {
     body { background: #fff; }
-    section { break-inside: avoid; }
-    .dir { break-inside: avoid; }
+    figure, .idea, .mock-web, .apps, .family { break-inside: avoid; }
   }
 </style>
 </head>
@@ -136,10 +183,13 @@
 
 <header class="hero">
   <div class="wrap">
-    <p class="eyebrow">Propuesta de identidad · Versión 1</p>
-    <h1>Abogados Remates Judiciales</h1>
-    <p class="lead">Tres direcciones de logo y una paleta para la nueva marca, pensadas para que conviva con Cáceres &amp; Camiruaga e Inversiones Cáceres sin confundirse con ellas.</p>
-    <p class="meta">Preparado por ZH Development · 19 de noviembre de 2026</p>
+    <div class="hero-text">
+      <p class="eyebrow">Propuesta de identidad · Versión 2</p>
+      <h1>Abogados Remates Judiciales</h1>
+      <p class="lead">Dos conceptos de logo para la nueva marca, pensados para que conviva con Cáceres &amp; Camiruaga e Inversiones Cáceres sin confundirse con ellas.</p>
+      <p class="meta">Preparado por ZH Development · 19 de noviembre de 2026</p>
+    </div>
+    <div class="hero-mark">{{r-simbolo-negativo}}</div>
   </div>
 </header>
 
@@ -152,11 +202,11 @@
 
   <div class="grid g2">
     <figure>
-      <div class="panel"><img class="w-fam" src="{{img-cc}}" alt="Logo de Cáceres &amp; Camiruaga Abogados"></div>
+      <div class="panel"><div class="w-fam"><img src="{{img-cc}}" alt="Logo de Cáceres &amp; Camiruaga Abogados"></div></div>
       <figcaption>Cáceres &amp; Camiruaga Abogados</figcaption>
     </figure>
     <figure>
-      <div class="panel"><img class="w-fam" src="{{img-ic}}" alt="Logo de Inversiones e Inmobiliaria Cáceres"></div>
+      <div class="panel"><div class="w-fam"><img src="{{img-ic}}" alt="Logo de Inversiones e Inmobiliaria Cáceres"></div></div>
       <figcaption>Inversiones e Inmobiliaria Cáceres</figcaption>
     </figure>
   </div>
@@ -173,101 +223,131 @@
       <div class="sw" style="--c:#DB7545"><i></i><span><b>Terracota</b><code>#DB7545</code> · inversiones</span></div>
     </div>
     <div class="fact">
-      <h4>La misma tipografía</h4>
+      <h4>Letras en serif</h4>
       <div class="type-serif">Mayúsculas</div>
       <div class="type-sans">Texto secundario</div>
-      <p>Book Antiqua con letras espaciadas, y Arboria para el texto secundario.</p>
+      <p>Book Antiqua con letras espaciadas, y Arboria para el texto secundario. El símbolo de cada marca son sus iniciales.</p>
     </div>
   </div>
   <p class="note">El azul, el dorado y las tipografías salen de la hoja de marca del estudio. El terracota lo medimos en los archivos de Inversiones Cáceres, porque de esa marca no recibimos hoja de colores.</p>
 </section>
 
 <section>
-  <p class="num">02 · La propuesta</p>
-  <h2>Misma regla, con símbolo y color propios</h2>
-  <p class="intro">La marca nueva mantiene el azul y la tipografía del grupo, y suma un símbolo y un color de acento que ninguna de las otras dos usa. Así se lee como una empresa distinta, pero de la misma casa.</p>
-  <div class="palette">
-    <div style="background:#222B53;color:#fff"><b>Azul del grupo</b>#222B53</div>
-    <div style="background:#1F7A6B;color:#fff"><b>Verde, acento nuevo</b>#1F7A6B</div>
-    <div style="background:#6E6D6D;color:#fff"><b>Gris</b>#6E6D6D</div>
-    <div style="background:#fff"><b>Blanco</b>#FFFFFF</div>
+  <p class="num">02 · Concepto 1</p>
+  <div class="head-row"><h2>La R que remata</h2><span class="tag">Recomendado</span></div>
+  <p class="intro">Una R en la misma letra de las otras dos marcas, con una diferencia: su pata es el mango de un martillo de remate.</p>
+
+  <div class="idea">
+    <div class="panel"><div class="w-sym">{{r-simbolo-color}}</div></div>
+    <ol>
+      <li><b>Dice remate sin explicarlo</b><span>La pata de la R termina en la cabeza del martillo. Es una sola pieza: letra y símbolo a la vez.</span></li>
+      <li><b>Es de la familia</b><span>Una inicial en serif con una parte de color, igual que las CC del estudio y la IC de inversiones.</span></li>
+      <li><b>Y es otra empresa</b><span>El martillo lleva un color que ninguna de las otras dos marcas usa.</span></li>
+    </ol>
   </div>
+
+  <h3>Junto a las otras dos marcas</h3>
+  <div class="family">
+    <figure><div class="panel"><div><img src="{{img-cc-mono}}" alt="Símbolo de Cáceres &amp; Camiruaga"></div></div><figcaption>El estudio</figcaption></figure>
+    <figure><div class="panel"><div><img src="{{img-ic-mono}}" alt="Símbolo de Inversiones Cáceres"></div></div><figcaption>Inversiones</figcaption></figure>
+    <figure><div class="panel new"><div>{{r-simbolo-color}}</div></div><figcaption><b>Remates Judiciales</b></figcaption></figure>
+  </div>
+
+  <h3>El logo completo</h3>
+  <div class="grid g2">
+    <figure><div class="panel"><div class="w-h">{{r-horizontal-color}}</div></div><figcaption>Versión horizontal, para la página web y documentos</figcaption></figure>
+    <figure><div class="panel navy"><div class="w-h">{{r-horizontal-negativo}}</div></div><figcaption>Sobre azul</figcaption></figure>
+    <figure><div class="panel"><div class="w-v">{{r-vertical-color}}</div></div><figcaption>Versión vertical, con «Abogados» entre barras como en el logo del estudio</figcaption></figure>
+    <figure><div class="panel navy"><div class="w-v">{{r-vertical-negativo}}</div></div><figcaption>Sobre azul</figcaption></figure>
+  </div>
+
+  <h3>A una tinta y en tamaño chico</h3>
+  <div class="small">
+    <div class="panel" style="min-height:0"><div class="w-h">{{r-horizontal-mono}}</div></div>
+    <div class="sizes"><span class="s96">{{r-avatar}}</span><span class="s48">{{r-avatar}}</span><span class="s24">{{r-avatar}}</span><span class="s16">{{r-avatar}}</span><small>Ícono para redes, WhatsApp y la pestaña del navegador</small></div>
+  </div>
+
+  <h3>Cómo se vería en uso</h3>
+  <div class="mock-web">
+    <div class="bar">
+      <div class="logo">{{r-horizontal-negativo}}</div>
+      <nav><span>Servicios</span><span>Cómo trabajamos</span><span>Equipo</span><span class="btn">Contacto</span></nav>
+    </div>
+    <div class="copy">
+      <p class="kicker">Abogados especialistas en remates judiciales</p>
+      <h4>Compre en remate con un equipo legal a su lado</h4>
+      <span class="cta">Evaluar una oportunidad</span>
+    </div>
+  </div>
+  <div class="apps">
+    <div class="app">
+      <div class="chat">
+        <div class="av">{{r-avatar-circular}}</div>
+        <div class="tx"><b>Abogados Remates Judiciales</b><span>Buenas tardes. ¿Qué remate le interesa revisar?</span></div>
+        <time>12:31</time>
+      </div>
+      <div class="tab"><div><i>{{r-avatar}}</i><span>Abogados Remates Judiciales</span></div></div>
+      <small>Chat y pestaña del navegador</small>
+    </div>
+    <div class="app">
+      <div class="cards">
+        <div class="bcard front"><div>{{r-simbolo-negativo}}</div></div>
+        <div class="bcard back"><div>{{r-horizontal-color}}</div><p><i></i><i></i><i></i></p></div>
+      </div>
+      <small>Tarjeta de presentación</small>
+    </div>
+  </div>
+  <p class="note">Los textos de la página web y del chat son solo de ejemplo.</p>
+
+  <div class="proscons"><dl>
+    <dt>A favor</dt><dd>Sigue la tradición de las otras dos marcas, una inicial, pero con una idea que es solo suya. Funciona como ícono sin necesidad del nombre.</dd>
+    <dt>A considerar</dt><dd>En tamaños muy chicos, como la pestaña del navegador, el martillo se reduce a una pieza de color junto a la R.</dd>
+  </dl></div>
 </section>
 
 <section>
-  <p class="num">03 · Tres direcciones</p>
-  <h2>De la más cercana al grupo a la más independiente</h2>
-  <p class="intro">Cada una se muestra en color, sobre azul, y en los tamaños chicos que usan WhatsApp, redes sociales y la pestaña del navegador.</p>
+  <p class="num">03 · Concepto 2</p>
+  <div class="head-row"><h2>El martillo que entrega la llave</h2><span class="tag alt">Alternativa</span></div>
+  <p class="intro">Un martillo de remate cuyo mango termina en llave. Resume el servicio completo: desde la subasta hasta que el cliente recibe la propiedad.</p>
 
-  <article class="dir">
-    <div class="dir-head"><h3>A · Monograma</h3><span class="tag">La más cercana a la familia</span></div>
-    <p class="idea">Una R y una J superpuestas, con la misma lógica de las CC del estudio y la IC de inversiones.</p>
-    <div class="grid g2">
-      <div class="panel"><div class="w-a">{{a-color}}</div></div>
-      <div class="panel navy"><div class="w-a">{{a-negativo}}</div></div>
-    </div>
-    <div class="below">
-      <div class="sizes"><span class="s96">{{a-icono}}</span><span class="s40">{{a-icono}}</span><span class="s20">{{a-icono}}</span><small>Avatar, ícono y pestaña del navegador</small></div>
-      <div class="proscons"><dl>
-        <dt>A favor</dt><dd>Continuidad inmediata con las otras dos marcas.</dd>
-        <dt>A considerar</dt><dd>Es la que menos se diferencia, y «RJ» por sí solo no dice remates.</dd>
-      </dl></div>
-    </div>
-  </article>
-
-  <article class="dir">
-    <div class="dir-head"><h3>B · Martillo</h3><span class="tag">Símbolo propio</span></div>
-    <p class="idea">El martillo de remate se entiende sin leer. El azul y la tipografía mantienen el vínculo con el grupo.</p>
-    <div class="grid g2">
-      <div class="panel"><div class="w-b">{{b-color}}</div></div>
-      <div class="panel navy"><div class="w-b">{{b-negativo}}</div></div>
-    </div>
-    <div class="below">
-      <div class="sizes"><span class="s96">{{b-icono}}</span><span class="s40">{{b-icono}}</span><span class="s20">{{b-icono}}</span><small>Avatar, ícono y pestaña del navegador</small></div>
-      <div class="proscons"><dl>
-        <dt>A favor</dt><dd>Se distingue de las otras dos marcas y se reconoce bien en tamaño chico.</dd>
-        <dt>A considerar</dt><dd>El martillo es un símbolo frecuente en el rubro legal. Lo que lo hace propio es el color y la tipografía.</dd>
-      </dl></div>
-    </div>
-  </article>
-
-  <article class="dir">
-    <div class="dir-head"><h3>C · Tipográfico</h3><span class="tag">El nombre es el logo</span></div>
-    <p class="idea">Un bloque de dos líneas, sin símbolo, que pone la palabra «Remates» por delante.</p>
-    <div class="grid g2">
-      <div class="panel"><div class="w-c">{{c-color}}</div></div>
-      <div class="panel navy"><div class="w-c">{{c-negativo}}</div></div>
-    </div>
-    <div class="below">
-      <div class="sizes"><span class="s96">{{c-icono}}</span><span class="s40">{{c-icono}}</span><span class="s20">{{c-icono}}</span><small>Avatar, ícono y pestaña del navegador</small></div>
-      <div class="proscons"><dl>
-        <dt>A favor</dt><dd>Es la más sobria y la que mejor se lee como titular en la página web.</dd>
-        <dt>A considerar</dt><dd>Al no tener símbolo, necesita el recuadro «RJ» para redes y WhatsApp, y ocupa más alto.</dd>
-      </dl></div>
-    </div>
-  </article>
-
-  <div class="reco">
-    <h3>Nuestra recomendación: la dirección B</h3>
-    <p>En la reunión se pidió una empresa independiente, con logo propio. La B es la que mejor lo cumple sin romper con el grupo: tiene un símbolo que las otras dos no tienen y conserva el azul y la tipografía que las emparentan.</p>
+  <div class="idea">
+    <div class="panel"><div class="w-sym">{{llave-simbolo-color}}</div></div>
+    <ol>
+      <li><b>Cuenta el final de la historia</b><span>El cliente no busca ganar un remate: busca quedarse con la propiedad. La llave lo dice.</span></li>
+      <li><b>Es un símbolo, no una letra</b><span>Es la opción que más separa la marca nueva del estudio y de inversiones.</span></li>
+      <li><b>Mantiene el vínculo</b><span>El azul y la tipografía siguen siendo los del grupo.</span></li>
+    </ol>
   </div>
+
+  <h3>El logo completo</h3>
+  <div class="grid g2">
+    <figure><div class="panel"><div class="w-h">{{llave-horizontal-color}}</div></div><figcaption>Versión horizontal</figcaption></figure>
+    <figure><div class="panel navy"><div class="w-h">{{llave-horizontal-negativo}}</div></div><figcaption>Sobre azul</figcaption></figure>
+    <figure><div class="panel"><div class="w-v">{{llave-vertical-color}}</div></div><figcaption>Versión vertical</figcaption></figure>
+    <div class="sizes" style="align-self:start"><span class="s96">{{llave-avatar}}</span><span class="s48">{{llave-avatar}}</span><span class="s24">{{llave-avatar}}</span><span class="s16">{{llave-avatar}}</span><small>Ícono para redes, WhatsApp y la pestaña del navegador</small></div>
+  </div>
+
+  <div class="proscons"><dl>
+    <dt>A favor</dt><dd>Es la idea más completa y la más independiente de las otras dos marcas.</dd>
+    <dt>A considerar</dt><dd>Al ser un objeto y no una inicial, se aleja del estilo de la familia. En tamaño muy chico se pierden los dientes de la llave.</dd>
+  </dl></div>
 </section>
 
 <section>
   <p class="num">04 · Color de acento</p>
   <h2>Tres opciones para el color propio</h2>
-  <p class="intro">Mostradas sobre la dirección B. Cualquiera de las tres se puede aplicar también a la A o a la C.</p>
+  <p class="intro">Mostradas sobre el concepto 1. Se aplican igual al concepto 2.</p>
   <div class="grid g3 opt">
     <figure>
-      <div class="panel"><div class="w-b">{{b-color-verde}}</div></div>
+      <div class="panel"><div class="w-h">{{r-horizontal-color-verde}}</div></div>
       <figcaption><b>Verde · recomendado</b> · #1F7A6B<br>Se asocia a inversión y es el que más se separa del dorado y del terracota.</figcaption>
     </figure>
     <figure>
-      <div class="panel"><div class="w-b">{{b-color-burdeos}}</div></div>
+      <div class="panel"><div class="w-h">{{r-horizontal-color-burdeos}}</div></div>
       <figcaption><b>Burdeos</b> · #8C2F3C<br>Más solemne, cercano al mundo judicial.</figcaption>
     </figure>
     <figure>
-      <div class="panel"><div class="w-b">{{b-color-acero}}</div></div>
+      <div class="panel"><div class="w-h">{{r-horizontal-color-acero}}</div></div>
       <figcaption><b>Azul acero</b> · #3A6EA5<br>El más discreto: queda dentro de la gama del azul.</figcaption>
     </figure>
   </div>
@@ -278,14 +358,8 @@
   <h2>Sola, o con el respaldo a la vista</h2>
   <p class="intro">La marca funciona por sí sola. Si quieren que la trayectoria del estudio le dé confianza desde el primer día, se puede agregar una línea de respaldo solo donde ayude, por ejemplo en el pie de la página web o en presentaciones a inversionistas.</p>
   <div class="grid g2">
-    <figure>
-      <div class="panel"><div class="w-b">{{b-color}}</div></div>
-      <figcaption>Independiente</figcaption>
-    </figure>
-    <figure>
-      <div class="panel"><div class="w-b">{{b-con-respaldo}}</div></div>
-      <figcaption>Con línea de respaldo</figcaption>
-    </figure>
+    <figure><div class="panel"><div class="w-h">{{r-horizontal-color}}</div></div><figcaption>Independiente</figcaption></figure>
+    <figure><div class="panel"><div class="w-h">{{r-horizontal-con-respaldo}}</div></div><figcaption>Con línea de respaldo</figcaption></figure>
   </div>
 </section>
 
@@ -293,18 +367,18 @@
   <p class="num">06 · Para avanzar</p>
   <h2>Lo que necesitamos que decidan</h2>
   <ol class="decide">
-    <li><b>La dirección</b><span>A, B o C. También sirve decirnos qué les gusta de una y qué de otra.</span></li>
+    <li><b>El concepto</b><span>La R que remata o el martillo que entrega la llave. También sirve decirnos qué les gusta de uno y qué del otro.</span></li>
     <li><b>El color de acento</b><span>Verde, burdeos o azul acero.</span></li>
     <li><b>La relación con el estudio</b><span>Marca sola, o con la línea de respaldo en algunos usos.</span></li>
     <li><b>El nombre definitivo y el dominio</b><span>Trabajamos con «Abogados Remates Judiciales». Si el nombre o el orden cambian, ajustamos el logo.</span></li>
   </ol>
-  <p class="note">Estos logos están dibujados con tipografías libres equivalentes a las del estudio (TeX Gyre Pagella y Montserrat). Con la dirección elegida preparamos la versión final y los archivos para web, redes e impresión.</p>
+  <p class="note">Los logos están dibujados con tipografías libres equivalentes a las del estudio (TeX Gyre Pagella y Montserrat). Con el concepto elegido preparamos la versión final y los archivos para web, redes e impresión.</p>
 </section>
 
 </main>
 
 <footer>
-  <div class="wrap">ZH Development · Propuesta de identidad para Abogados Remates Judiciales · Versión 1</div>
+  <div class="wrap">ZH Development · Propuesta de identidad para Abogados Remates Judiciales · Versión 2</div>
 </footer>
 
 </body>

@@ -1,0 +1,25 @@
+// Variante para publicar con el sitio empaquetado en el Worker (ver README).
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "abogadosrematesjudiciales",
+  "main": "src/worker-embed.js",
+  "compatibility_date": "2026-11-01",
+  // Versión de prueba en workers.dev mientras el cliente revisa el sitio.
+  // Para publicar en el dominio real, descomentar «routes».
+  "workers_dev": true,
+  // "routes": [
+  //   { "pattern": "abogadosrematesjudiciales.cl", "custom_domain": true },
+  //   { "pattern": "www.abogadosrematesjudiciales.cl", "custom_domain": true }
+  // ],
+  "d1_databases": [
+    // Base compartida por los sitios del grupo: el «buzón único».
+    // Crear con: npx wrangler d1 create buzon-contactos  y copiar aquí su database_id.
+    { "binding": "DB", "database_name": "buzon-contactos", "database_id": "6365ee0f-59cc-4a33-9f28-21539e92c1fb" }
+  ],
+  "vars": {
+    "SITE_NAME": "Abogados Remates Judiciales",
+    "NOTIFY_TO": "",
+    "NOTIFY_FROM": ""
+  },
+  "observability": { "enabled": true }
+}

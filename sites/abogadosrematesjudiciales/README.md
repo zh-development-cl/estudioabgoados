@@ -63,6 +63,20 @@ npx wrangler deploy
 npx wrangler secret put BREVO_API_KEY
 ```
 
+## Publicar desde un entorno con proxy
+
+Si el despliegue normal falla al subir los archivos (`workers/assets/upload -> 401`), es porque un proxy reemplaza el encabezado Authorization. En ese caso se empaqueta el sitio dentro del Worker y se publica con la variante `wrangler.embed.jsonc`:
+
+```bash
+python3 tools/embed_static.py
+```
+
+```bash
+npx wrangler deploy --config wrangler.embed.jsonc
+```
+
+La versión de prueba queda en https://abogadosrematesjudiciales.zhdevelopment.workers.dev y responde `noindex` para que no aparezca en buscadores.
+
 ## Antes de publicar, confirmar con el cliente
 
 - Número de WhatsApp y teléfono propios de la marca (hoy usa el de administración de Cáceres & Camiruaga).

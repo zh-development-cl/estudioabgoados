@@ -177,6 +177,15 @@
     body { background: #fff; }
     figure, .idea, .mock-web, .apps, .family { break-inside: avoid; }
   }
+  .w-p { max-width: 300px; } .w-ph { max-width: 400px; } .w-rh { max-width: 380px; } .w-rv { max-width: 330px; }
+  .refimg { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+  .refimg img { border-radius: 6px; }
+  .takeaways { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
+  .takeaways div { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; font-size: 14.5px; }
+  .takeaways b { display: block; font: 400 21px/1.25 var(--serif); margin-bottom: 6px; color: var(--ink); }
+  .takeaways span { color: var(--muted); }
+  .mock-web .logo.punto { width: 230px; }
+  @media (max-width: 760px) { .takeaways { grid-template-columns: 1fr; } .mock-web .logo.punto { width: 180px; } }
 </style>
 </head>
 <body>
@@ -184,12 +193,12 @@
 <header class="hero">
   <div class="wrap">
     <div class="hero-text">
-      <p class="eyebrow">Propuesta de identidad · Versión 2</p>
+      <p class="eyebrow">Propuesta de identidad · Versión 3</p>
       <h1>Abogados Remates Judiciales</h1>
-      <p class="lead">Dos conceptos de logo para la nueva marca, pensados para que conviva con Cáceres &amp; Camiruaga e Inversiones Cáceres sin confundirse con ellas.</p>
+      <p class="lead">Dos conceptos de logo para la nueva marca, a la altura de los estudios de abogados más reconocidos y pensados para convivir con Cáceres &amp; Camiruaga e Inversiones Cáceres.</p>
       <p class="meta">Preparado por ZH Development · 24 de noviembre de 2026</p>
     </div>
-    <div class="hero-mark">{{r-simbolo-negativo}}</div>
+    <div class="hero-mark">{{punto-simbolo-negativo}}</div>
   </div>
 </header>
 
@@ -198,7 +207,7 @@
 <section>
   <p class="num">01 · Punto de partida</p>
   <h2>Las dos marcas actuales ya siguen una misma regla</h2>
-  <p class="intro">Revisamos los logos que nos enviaron. Aunque son de empresas distintas, comparten tres decisiones, y eso es lo que hace que se vean de la misma casa.</p>
+  <p class="intro">Aunque son empresas distintas, Cáceres &amp; Camiruaga e Inversiones Cáceres comparten tres decisiones, y eso es lo que hace que se vean de la misma casa.</p>
 
   <div class="grid g2">
     <figure>
@@ -226,23 +235,35 @@
       <h4>Letras en serif</h4>
       <div class="type-serif">Mayúsculas</div>
       <div class="type-sans">Texto secundario</div>
-      <p>Book Antiqua con letras espaciadas, y Arboria para el texto secundario. El símbolo de cada marca son sus iniciales.</p>
+      <p>Book Antiqua para el nombre y Arboria para el texto secundario.</p>
     </div>
   </div>
-  <p class="note">El azul, el dorado y las tipografías salen de la hoja de marca del estudio. El terracota lo medimos en los archivos de Inversiones Cáceres, porque de esa marca no recibimos hoja de colores.</p>
 </section>
 
 <section>
-  <p class="num">02 · Concepto 1</p>
-  <div class="head-row"><h2>La R que remata</h2><span class="tag">Recomendado</span></div>
-  <p class="intro">Una R en la misma letra de las otras dos marcas, con una diferencia: su pata es el mango de un martillo de remate.</p>
+  <p class="num">02 · Referencias</p>
+  <h2>Cómo se ven los estudios más reconocidos</h2>
+  <p class="intro">Revisamos los logos de 17 de los estudios de abogados más importantes de Estados Unidos, Reino Unido, España, Brasil, México, Argentina y Chile.</p>
+  <div class="refimg"><img src="{{img-ref-estudios}}" alt="Logos de estudios de abogados de referencia"></div>
+  <div class="takeaways">
+    <div><b>Ninguno usa martillo ni balanza</b><span>Los símbolos obvios del derecho no aparecen en ninguno de los 17.</span></div>
+    <div><b>El nombre es el logo</b><span>Casi todos son solo tipografía, muy bien trabajada. La seriedad viene de la letra, no de un dibujo.</span></div>
+    <div><b>Un color propio</b><span>Cada uno se reconoce por un solo color: el verde de Garrigues, el rojo de Latham, el azul de Davis Polk.</span></div>
+  </div>
+  <p class="note">Logos tomados de los sitios web de cada estudio el 24 de noviembre de 2026, solo como referencia.</p>
+</section>
+
+<section>
+  <p class="num">03 · Concepto 1</p>
+  <div class="head-row"><h2>Punto final</h2><span class="tag">Recomendado</span></div>
+  <p class="intro">El nombre de la marca, bien escrito, y un solo detalle propio: un punto final en verde.</p>
 
   <div class="idea">
-    <div class="panel"><div class="w-sym">{{r-simbolo-color}}</div></div>
+    <div class="panel"><div class="w-p">{{punto-principal-color}}</div></div>
     <ol>
-      <li><b>Dice remate sin explicarlo</b><span>La pata de la R termina en la cabeza del martillo. Es una sola pieza: letra y símbolo a la vez.</span></li>
-      <li><b>Es de la familia</b><span>Una inicial en serif con una parte de color, igual que las CC del estudio y la IC de inversiones.</span></li>
-      <li><b>Y es otra empresa</b><span>El martillo lleva un color que ninguna de las otras dos marcas usa.</span></li>
+      <li><b>Rematar es poner punto final</b><span>El remate es el momento en que se cierra el negocio. El punto verde es ese golpe final.</span></li>
+      <li><b>Como los grandes estudios</b><span>El nombre es el logo, en la misma familia de letra serif de Cáceres &amp; Camiruaga.</span></li>
+      <li><b>Un color propio</b><span>El verde es solo de esta marca, igual que el dorado es del estudio y el terracota de inversiones.</span></li>
     </ol>
   </div>
 
@@ -250,27 +271,27 @@
   <div class="family">
     <figure><div class="panel"><div><img src="{{img-cc-mono}}" alt="Símbolo de Cáceres &amp; Camiruaga"></div></div><figcaption>El estudio</figcaption></figure>
     <figure><div class="panel"><div><img src="{{img-ic-mono}}" alt="Símbolo de Inversiones Cáceres"></div></div><figcaption>Inversiones</figcaption></figure>
-    <figure><div class="panel new"><div>{{r-simbolo-color}}</div></div><figcaption><b>Remates Judiciales</b></figcaption></figure>
+    <figure><div class="panel new"><div>{{punto-simbolo-color}}</div></div><figcaption><b>Remates Judiciales</b></figcaption></figure>
   </div>
 
   <h3>El logo completo</h3>
   <div class="grid g2">
-    <figure><div class="panel"><div class="w-h">{{r-horizontal-color}}</div></div><figcaption>Versión horizontal, para la página web y documentos</figcaption></figure>
-    <figure><div class="panel navy"><div class="w-h">{{r-horizontal-negativo}}</div></div><figcaption>Sobre azul</figcaption></figure>
-    <figure><div class="panel"><div class="w-v">{{r-vertical-color}}</div></div><figcaption>Versión vertical, con «Abogados» entre barras como en el logo del estudio</figcaption></figure>
-    <figure><div class="panel navy"><div class="w-v">{{r-vertical-negativo}}</div></div><figcaption>Sobre azul</figcaption></figure>
+    <figure><div class="panel"><div class="w-p">{{punto-principal-color}}</div></div><figcaption>Versión principal</figcaption></figure>
+    <figure><div class="panel navy"><div class="w-p">{{punto-principal-negativo}}</div></div><figcaption>Sobre azul</figcaption></figure>
+    <figure><div class="panel"><div class="w-ph">{{punto-horizontal-color}}</div></div><figcaption>En una línea, para encabezados y documentos</figcaption></figure>
+    <figure><div class="panel navy"><div class="w-ph">{{punto-horizontal-negativo}}</div></div><figcaption>Sobre azul</figcaption></figure>
   </div>
 
   <h3>A una tinta y en tamaño chico</h3>
   <div class="small">
-    <div class="panel" style="min-height:0"><div class="w-h">{{r-horizontal-mono}}</div></div>
-    <div class="sizes"><span class="s96">{{r-avatar}}</span><span class="s48">{{r-avatar}}</span><span class="s24">{{r-avatar}}</span><span class="s16">{{r-avatar}}</span><small>Ícono para redes, WhatsApp y la pestaña del navegador</small></div>
+    <div class="panel" style="min-height:0"><div class="w-p">{{punto-principal-mono}}</div></div>
+    <div class="sizes"><span class="s96">{{punto-avatar}}</span><span class="s48">{{punto-avatar}}</span><span class="s24">{{punto-avatar}}</span><span class="s16">{{punto-avatar}}</span><small>Ícono para redes, WhatsApp y la pestaña del navegador</small></div>
   </div>
 
   <h3>Cómo se vería en uso</h3>
   <div class="mock-web">
     <div class="bar">
-      <div class="logo">{{r-horizontal-negativo}}</div>
+      <div class="logo punto">{{punto-horizontal-negativo}}</div>
       <nav><span>Servicios</span><span>Cómo trabajamos</span><span>Equipo</span><span class="btn">Contacto</span></nav>
     </div>
     <div class="copy">
@@ -282,17 +303,17 @@
   <div class="apps">
     <div class="app">
       <div class="chat">
-        <div class="av">{{r-avatar-circular}}</div>
+        <div class="av">{{punto-avatar-circular}}</div>
         <div class="tx"><b>Abogados Remates Judiciales</b><span>Buenas tardes. ¿Qué remate le interesa revisar?</span></div>
         <time>12:31</time>
       </div>
-      <div class="tab"><div><i>{{r-avatar}}</i><span>Abogados Remates Judiciales</span></div></div>
+      <div class="tab"><div><i>{{punto-avatar}}</i><span>Abogados Remates Judiciales</span></div></div>
       <small>Chat y pestaña del navegador</small>
     </div>
     <div class="app">
       <div class="cards">
-        <div class="bcard front"><div>{{r-simbolo-negativo}}</div></div>
-        <div class="bcard back"><div>{{r-horizontal-color}}</div><p><i></i><i></i><i></i></p></div>
+        <div class="bcard front"><div>{{punto-simbolo-negativo}}</div></div>
+        <div class="bcard back"><div>{{punto-horizontal-color}}</div><p><i></i><i></i><i></i></p></div>
       </div>
       <small>Tarjeta de presentación</small>
     </div>
@@ -300,75 +321,75 @@
   <p class="note">Los textos de la página web y del chat son solo de ejemplo.</p>
 
   <div class="proscons"><dl>
-    <dt>A favor</dt><dd>Sigue la tradición de las otras dos marcas, una inicial, pero con una idea que es solo suya. Funciona como ícono sin necesidad del nombre.</dd>
-    <dt>A considerar</dt><dd>En tamaños muy chicos, como la pestaña del navegador, el martillo se reduce a una pieza de color junto a la R.</dd>
+    <dt>A favor</dt><dd>Es la opción más sobria y la que más se acerca a cómo se ven los estudios más reconocidos. Se lee perfecto en cualquier tamaño.</dd>
+    <dt>A considerar</dt><dd>La idea del punto final es sutil: no dice «remate» a primera vista. Lo que dice remate es el nombre.</dd>
   </dl></div>
 </section>
 
 <section>
-  <p class="num">03 · Concepto 2</p>
-  <div class="head-row"><h2>El martillo que entrega la llave</h2><span class="tag alt">Alternativa</span></div>
-  <p class="intro">Un martillo de remate cuyo mango termina en llave. Resume el servicio completo: desde la subasta hasta que el cliente recibe la propiedad.</p>
+  <p class="num">04 · Concepto 2</p>
+  <div class="head-row"><h2>La R que remata</h2><span class="tag alt">Alternativa</span></div>
+  <p class="intro">Una R en la misma letra serif de las otras dos marcas, cuya pata termina en la cabeza de un martillo de remate.</p>
 
   <div class="idea">
-    <div class="panel"><div class="w-sym">{{llave-simbolo-color}}</div></div>
+    <div class="panel"><div class="w-sym">{{r-simbolo-color}}</div></div>
     <ol>
-      <li><b>Cuenta el final de la historia</b><span>El cliente no busca ganar un remate: busca quedarse con la propiedad. La llave lo dice.</span></li>
-      <li><b>Es un símbolo, no una letra</b><span>Es la opción que más separa la marca nueva del estudio y de inversiones.</span></li>
-      <li><b>Mantiene el vínculo</b><span>El azul y la tipografía siguen siendo los del grupo.</span></li>
+      <li><b>Dice remate sin explicarlo</b><span>Letra y martillo son una sola pieza.</span></li>
+      <li><b>Sigue la tradición de la familia</b><span>Una inicial con una parte de color, como las CC del estudio y la IC de inversiones.</span></li>
+      <li><b>Un martillo poco común</b><span>Integrado a la letra y no dibujado al lado, que es como lo usa el rubro.</span></li>
     </ol>
   </div>
 
   <h3>El logo completo</h3>
   <div class="grid g2">
-    <figure><div class="panel"><div class="w-h">{{llave-horizontal-color}}</div></div><figcaption>Versión horizontal</figcaption></figure>
-    <figure><div class="panel navy"><div class="w-h">{{llave-horizontal-negativo}}</div></div><figcaption>Sobre azul</figcaption></figure>
-    <figure><div class="panel"><div class="w-v">{{llave-vertical-color}}</div></div><figcaption>Versión vertical</figcaption></figure>
-    <div class="sizes" style="align-self:start"><span class="s96">{{llave-avatar}}</span><span class="s48">{{llave-avatar}}</span><span class="s24">{{llave-avatar}}</span><span class="s16">{{llave-avatar}}</span><small>Ícono para redes, WhatsApp y la pestaña del navegador</small></div>
+    <figure><div class="panel"><div class="w-rh">{{r-horizontal-color}}</div></div><figcaption>Versión horizontal</figcaption></figure>
+    <figure><div class="panel navy"><div class="w-rh">{{r-horizontal-negativo}}</div></div><figcaption>Sobre azul</figcaption></figure>
+    <figure><div class="panel"><div class="w-rv">{{r-vertical-color}}</div></div><figcaption>Versión vertical</figcaption></figure>
+    <div class="sizes" style="align-self:start"><span class="s96">{{r-avatar}}</span><span class="s48">{{r-avatar}}</span><span class="s24">{{r-avatar}}</span><span class="s16">{{r-avatar}}</span><small>Ícono para redes, WhatsApp y la pestaña del navegador</small></div>
   </div>
 
   <div class="proscons"><dl>
-    <dt>A favor</dt><dd>Es la idea más completa y la más independiente de las otras dos marcas.</dd>
-    <dt>A considerar</dt><dd>Al ser un objeto y no una inicial, se aleja del estilo de la familia. En tamaño muy chico se pierden los dientes de la llave.</dd>
+    <dt>A favor</dt><dd>Comunica el rubro de inmediato y tiene un símbolo propio que funciona solo, sin el nombre.</dd>
+    <dt>A considerar</dt><dd>Usa un símbolo literal, algo que los estudios más reconocidos evitan. En tamaños muy chicos el martillo se reduce a una pieza de color.</dd>
   </dl></div>
 </section>
 
 <section>
-  <p class="num">04 · Color de acento</p>
+  <p class="num">05 · Color de acento</p>
   <h2>Tres opciones para el color propio</h2>
   <p class="intro">Mostradas sobre el concepto 1. Se aplican igual al concepto 2.</p>
   <div class="grid g3 opt">
     <figure>
-      <div class="panel"><div class="w-h">{{r-horizontal-color-verde}}</div></div>
+      <div class="panel"><div class="w-p">{{punto-principal-color-verde}}</div></div>
       <figcaption><b>Verde · recomendado</b> · #1F7A6B<br>Se asocia a inversión y es el que más se separa del dorado y del terracota.</figcaption>
     </figure>
     <figure>
-      <div class="panel"><div class="w-h">{{r-horizontal-color-burdeos}}</div></div>
+      <div class="panel"><div class="w-p">{{punto-principal-color-burdeos}}</div></div>
       <figcaption><b>Burdeos</b> · #8C2F3C<br>Más solemne, cercano al mundo judicial.</figcaption>
     </figure>
     <figure>
-      <div class="panel"><div class="w-h">{{r-horizontal-color-acero}}</div></div>
+      <div class="panel"><div class="w-p">{{punto-principal-color-acero}}</div></div>
       <figcaption><b>Azul acero</b> · #3A6EA5<br>El más discreto: queda dentro de la gama del azul.</figcaption>
     </figure>
   </div>
 </section>
 
 <section>
-  <p class="num">05 · Relación con el estudio</p>
+  <p class="num">06 · Relación con el estudio</p>
   <h2>Sola, o con el respaldo a la vista</h2>
   <p class="intro">La marca funciona por sí sola. Si quieren que la trayectoria del estudio le dé confianza desde el primer día, se puede agregar una línea de respaldo solo donde ayude, por ejemplo en el pie de la página web o en presentaciones a inversionistas.</p>
   <div class="grid g2">
-    <figure><div class="panel"><div class="w-h">{{r-horizontal-color}}</div></div><figcaption>Independiente</figcaption></figure>
-    <figure><div class="panel"><div class="w-h">{{r-horizontal-con-respaldo}}</div></div><figcaption>Con línea de respaldo</figcaption></figure>
+    <figure><div class="panel"><div class="w-p">{{punto-principal-color}}</div></div><figcaption>Independiente</figcaption></figure>
+    <figure><div class="panel"><div class="w-p">{{punto-principal-con-respaldo}}</div></div><figcaption>Con línea de respaldo</figcaption></figure>
   </div>
 </section>
 
 <section>
-  <p class="num">06 · Para avanzar</p>
+  <p class="num">07 · Para avanzar</p>
   <h2>Lo que necesitamos que decidan</h2>
   <p class="intro">Ya está confirmado el nombre, «Abogados Remates Judiciales», y el dominio, abogadosrematesjudiciales.cl. Para cerrar el logo nos faltan tres decisiones.</p>
   <ol class="decide">
-    <li><b>El concepto</b><span>La R que remata o el martillo que entrega la llave. También sirve decirnos qué les gusta de uno y qué del otro.</span></li>
+    <li><b>El concepto</b><span>Punto final o la R que remata. También sirve decirnos qué les gusta de uno y qué del otro.</span></li>
     <li><b>El color de acento</b><span>Verde, burdeos o azul acero.</span></li>
     <li><b>La relación con el estudio</b><span>Marca sola, o con la línea de respaldo en algunos usos.</span></li>
   </ol>
@@ -378,7 +399,7 @@
 </main>
 
 <footer>
-  <div class="wrap">ZH Development · Propuesta de identidad para Abogados Remates Judiciales · Versión 2</div>
+  <div class="wrap">ZH Development · Propuesta de identidad para Abogados Remates Judiciales · Versión 3</div>
 </footer>
 
 </body>

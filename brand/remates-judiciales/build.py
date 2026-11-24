@@ -194,6 +194,20 @@ def mark_r(height=100.0):
     base = bbox([g])[3]                      # pie de la pata, con su leve sobrepaso
     length, h, cap_w, cap_h, gap = 292.0, 52.0, 40.0, 62.0, 8.0
     stem_center = 168.5                      # centro del asta de la R de Pagella
+    # La pata inclinada termina recta en la línea de base, sin el pie curvo, para
+    # que el único «pie» de la letra sea el martillo. Bordes medidos en Pagella:
+    # a 100 unidades de altura la pata va de x 451,1 a 572,3 y baja con
+    # pendientes de 0,745 (borde izquierdo) y 0,767 (borde derecho).
+    def leg_x(y_up, x100, slope):
+        return x100 + (100 - y_up) * slope
+    leg = Path()
+    pen = leg.getPen()
+    pen.moveTo((leg_x(101, 451.1, 0.745), -101))
+    pen.lineTo((leg_x(101, 572.3, 0.767), -101))
+    pen.lineTo((leg_x(-base, 572.3, 0.767), base))
+    pen.lineTo((leg_x(-base, 451.1, 0.745), base))
+    pen.closePath()
+    g = union(minus(g, rrect(420, -100, 400, 120)), leg)
     # el asta baja hasta meterse un poco en la cabeza, para que no quede ranura
     letter = minus(g, rrect(0, base - h + 2, 330, h + 20))
     letter = union(letter, gavel_head(stem_center, length, h, cap_w, cap_h, gap, base))

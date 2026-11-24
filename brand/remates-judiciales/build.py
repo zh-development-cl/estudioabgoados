@@ -169,39 +169,58 @@ def period(size, x_after):
     return circle(x_after + size * 0.05 + r, -r, r)
 
 
-def mark_r(height=100.0):
-    """La R que remata: la pata de la R es el mango de un martillo de remate.
+def gavel_head(cx, length, h, cap_w, cap_h, gap):
+    """Cabeza de martillo de perfil, apoyada en la línea base: un cuerpo y dos
+    extremos un poco más altos y redondeados, como un tambor."""
+    x0, x1 = cx - length / 2, cx + length / 2
+    mid = -cap_h / 2
+    body = rrect(x0 + cap_w + gap, mid - h / 2, length - 2 * (cap_w + gap), h, 2)
+    rad = min(cap_w, cap_h) * 0.45
+    return union(
+        body,
+        rrect(x0, mid - cap_h / 2, cap_w, cap_h, rad),
+        rrect(x1 - cap_w, mid - cap_h / 2, cap_w, cap_h, rad),
+    )
 
-    Devuelve las piezas con la R apoyada en y = `height` (línea base) y su
-    borde superior en y = 0.
+
+def mark_r(height=100.0):
+    """La R de martillo: el asta de la R es el mango y su pie, la cabeza de un
+    martillo de remate. Un solo color.
+
+    Devuelve la letra con su borde superior en y = 0, lista para ubicar.
     """
     g = SERIF.glyph("R")
-    # La pata de la R de Pagella: eje y ángulo medidos sobre el propio glifo.
-    theta = math.atan2(200.0, 151.0)
-    ax, ay = 436.5, -200.0
-    ca, sa = math.cos(theta), math.sin(theta)
+    length, h, cap_w, cap_h, gap = 292.0, 48.0, 40.0, 76.0, 8.0
+    stem_center = 168.5                      # centro del asta de la R de Pagella
+    cut = cap_h / 2 + h / 2
+    letter = minus(g, rrect(0, -cut, 330, cut + 20))
+    letter = union(letter, gavel_head(stem_center, length, h, cap_w, cap_h, gap))
+    x0, y0, x1, y1 = bbox([letter])
+    s = height / (y1 - y0)
+    letter = place(letter, -x0 * s, -y0 * s, s)
+    return {"main": letter, "accent": Path(), "w": (x1 - x0) * s, "h": height}
 
-    def local(p):  # marco local: x a lo largo de la pata, y transversal
-        return affine(p, ca, sa, -sa, ca, ax, ay)
 
-    length, thick = 230.0, 92.0       # cabeza: largo (transversal) y grosor
-    cap, gap, inset = 36.0, 9.0, 6.0
-    lift = 20.0                       # la cabeza queda apenas sobre la línea base
-    t0 = (200.0 - lift - (length / 2) * ca) / sa - thick
-    beyond = inter(local(rrect(t0 + inset + 1, -500, 1200, 1000)), rrect(300, -600, 1200, 1200))
-    letter = minus(g, beyond)
-    head = union(
-        rrect(t0, -length / 2, thick, cap, 8),
-        rrect(t0, length / 2 - cap, thick, cap, 8),
-        rrect(t0 + inset, -length / 2 + cap + gap, thick - 2 * inset, length - 2 * (cap + gap), 2),
-    )
-    head = local(head)
-    s = height / 692.0
-    x0 = bbox([letter])[0]
-    letter = place(letter, -x0 * s, height, s)
-    head = place(head, -x0 * s, height, s)
-    x_min, y_min, x_max, y_max = bbox([letter, head])
-    return {"main": letter, "accent": head, "w": x_max, "h": y_max}
+def arc_text(face, text, size, radius, center_deg, track=0.0, bottom=False):
+    """Texto sobre un círculo de centro (0, 0). center_deg: 90 arriba, 270 abajo.
+    Arriba la base mira al centro; abajo el texto queda derecho."""
+    shaped = face.shape(text)
+    s = size / face.upm
+    steps = [adv * s + track * size for _, adv in shaped]
+    span = (sum(steps) - track * size) / radius
+    th = math.radians(center_deg) + (-span / 2 if bottom else span / 2)
+    out = Path()
+    for (name, adv), step in zip(shaped, steps):
+        w = adv * s
+        mid = th + (w / 2) / radius if bottom else th - (w / 2) / radius
+        g = Path()
+        face.glyphs[name].draw(TransformPen(g.getPen(), (s, 0, 0, -s, -w / 2, 0)))
+        ct, st = math.cos(mid), math.sin(mid)
+        px, py = radius * ct, -radius * st
+        m = (-st, -ct, ct, -st, px, py) if bottom else (st, ct, -ct, st, px, py)
+        g.transform(*m).draw(out.getPen())
+        th = th + step / radius if bottom else th - step / radius
+    return out
 
 
 def mark_punto(height=100.0):
@@ -237,6 +256,8 @@ class Art:
         self.items = []
 
     def add(self, path, fill, opacity=None):
+        if not list(path.contours):
+            return
         self.items.append((path, fill, opacity))
 
     def svg(self, pad=0.0, title=NAME, bg=None, radius=0.0, box=None):
@@ -296,41 +317,79 @@ def punto_horizontal(mode="color", accent="verde"):
 
 
 def r_horizontal(mode="color", accent="verde", endorsed=False):
-    """Símbolo de la R con martillo, línea divisoria y nombre en versalitas."""
+    """R de martillo, línea divisoria, nombre en versalitas y «ABOGADOS» con una
+    línea corta de acento. Versión principal del concepto."""
     c = palette(mode, accent)
     m = mark_r(150.0)
     art = Art()
-    art.add(m["main"], c["fg"]); art.add(m["accent"], c["acc"])
-    x_rule = m["w"] + 20
-    art.add(rrect(x_rule, 6, 1.4, 142), c["rule"])
-    x = x_rule + 24
+    art.add(m["main"], c["fg"])
+    x_rule = m["w"] + 24
+    art.add(rrect(x_rule, 4, 1.4, 146), c["rule"])
+    x = x_rule + 26
     size = 64.0
-    l1, w1 = SERIF.text("Remates", size, x, 62, 0.04, smcp=True)
-    l2, w2 = SERIF.text("Judiciales", size, x, 122, 0.04, smcp=True)
+    l1, w1 = SERIF.text("Remates", size, x, 56, 0.04, smcp=True)
+    l2, w2 = SERIF.text("Judiciales", size, x, 114, 0.04, smcp=True)
     art.add(l1, c["fg"]); art.add(l2, c["fg"])
-    sub, _ = SANS.text("ABOGADOS", SUB_SIZE, x + 2, 150, SUB_TRACK)
+    art.add(rrect(x + 2, 145.2, 34, 2.6), c["acc"])
+    sub, _ = SANS.text("ABOGADOS", SUB_SIZE, x + 50, 151, SUB_TRACK)
     art.add(sub, c["sub"])
     if endorsed:
         endorsement(art, c, x + 2, 150 + 44, x + max(w1, w2))
     return art.svg(pad=3)
 
 
+def r_insignia(accent="verde"):
+    """La R blanca dentro de un cuadro azul, con el nombre al lado."""
+    c = palette("color", accent)
+    side = 160.0
+    m = mark_r(92.0)
+    art = Art()
+    art.add(rrect(0, 0, side, side, 14), NAVY)
+    art.add(place(m["main"], (side - m["w"]) / 2 + 2, (side - m["h"]) / 2), "#FFFFFF")
+    x = side + 30
+    size = 62.0
+    l1, _ = SERIF.text("Remates", size, x, 60, 0.04, smcp=True)
+    l2, _ = SERIF.text("Judiciales", size, x, 117, 0.04, smcp=True)
+    art.add(l1, c["fg"]); art.add(l2, c["fg"])
+    art.add(rrect(x + 2, 149.2, 34, 2.6), c["acc"])
+    sub, _ = SANS.text("ABOGADOS", SUB_SIZE, x + 50, 155, SUB_TRACK)
+    art.add(sub, c["sub"])
+    return art.svg(pad=3)
+
+
 def r_vertical(mode="color", accent="verde"):
-    """R con martillo arriba y el nombre en versalitas centrado."""
+    """R de martillo arriba y el nombre en versalitas centrado."""
     c = palette(mode, accent)
-    m = mark_r(132.0)
+    m = mark_r(136.0)
     size = 52.0
     w = SERIF.width("Remates Judiciales", size, 0.06, smcp=True)
     cx = w / 2
     art = Art()
-    art.add(place(m["main"], cx - m["w"] / 2 + 6, 0), c["fg"])
-    art.add(place(m["accent"], cx - m["w"] / 2 + 6, 0), c["acc"])
-    y = m["h"] + 62
+    art.add(place(m["main"], cx - m["w"] / 2 + 4, 0), c["fg"])
+    y = m["h"] + 60
     t, _ = SERIF.text("Remates Judiciales", size, cx, y, 0.06, "middle", smcp=True)
     art.add(t, c["fg"])
-    sub, _ = SANS.text("ABOGADOS", SUB_SIZE, cx, y + 34, SUB_TRACK, "middle")
+    sub, ws = SANS.text("ABOGADOS", SUB_SIZE, cx, y + 34, SUB_TRACK, "middle")
     art.add(sub, c["sub"])
+    cap = SANS.cap(SUB_SIZE)
+    for bx in (cx - ws / 2 - 40, cx + ws / 2 + 14):
+        art.add(rrect(bx, y + 34 - cap / 2 - 1.3, 26, 2.6), c["acc"])
     return art.svg(pad=3)
+
+
+def r_sello(mode="color", accent="verde"):
+    """Sello circular: para documentos, firmas de correo y presentaciones."""
+    c = palette(mode, accent)
+    R0 = 150.0
+    art = Art()
+    art.add(minus(circle(0, 0, R0), circle(0, 0, R0 - 3.2)), c["fg"])
+    art.add(minus(circle(0, 0, R0 - 44), circle(0, 0, R0 - 45.6)), c["fg"])
+    art.add(arc_text(SANS, "REMATES JUDICIALES", 15.5, R0 - 29, 90, 0.34), c["fg"])
+    art.add(arc_text(SANS, "ABOGADOS", 15.5, R0 - 16, 270, 0.5, bottom=True), c["fg"])
+    m = mark_r(124.0)
+    art.add(place(m["main"], -m["w"] / 2 + 4, -m["h"] / 2 - 2), c["fg"])
+    art.add(union(circle(-(R0 - 22), 6, 3.2), circle(R0 - 22, 6, 3.2)), c["acc"])
+    return art.svg(pad=2, title="Remates Judiciales · Abogados")
 
 
 def symbol(kind, mode="color", accent="verde"):
@@ -346,7 +405,7 @@ def avatar(kind, accent="verde", shape="square"):
     """Ícono para redes, WhatsApp y pestaña del navegador."""
     c = palette("negativo", accent)
     side = 200.0
-    target = {"punto": 98.0, "r": 104.0}[kind]
+    target = {"punto": 98.0, "r": 108.0}[kind]
     m = MARKS[kind](target)
     x = (side - m["w"]) / 2
     y = (side - m["h"]) / 2
@@ -380,6 +439,7 @@ def main():
         files[f"punto-horizontal-{mode}"] = punto_horizontal(mode)
         files[f"r-horizontal-{mode}"] = r_horizontal(mode)
         files[f"r-vertical-{mode}"] = r_vertical(mode)
+        files[f"r-sello-{mode}"] = r_sello(mode)
         for kind in MARKS:
             files[f"{kind}-simbolo-{mode}"] = symbol(kind, mode)
     for kind in MARKS:
@@ -387,6 +447,7 @@ def main():
         files[f"{kind}-avatar-circular"] = avatar(kind, shape="circle")
     files["punto-principal-con-respaldo"] = punto_principal(endorsed=True)
     files["r-horizontal-con-respaldo"] = r_horizontal(endorsed=True)
+    files["r-insignia"] = r_insignia()
     for name, content in files.items():
         with open(os.path.join(out, f"remates-judiciales-{name}.svg"), "w", encoding="utf-8") as fh:
             fh.write(content)
@@ -394,6 +455,7 @@ def main():
     slots = dict(files)
     for acc in ACCENTS:
         slots[f"punto-principal-color-{acc}"] = punto_principal("color", acc)
+        slots[f"r-horizontal-color-{acc}"] = r_horizontal("color", acc)
     slots["img-cc"] = data_uri("caceres-camiruaga/logo-1-color.png", 900)
     slots["img-cc-mono"] = data_uri("caceres-camiruaga/logo-3-monograma-color.png", 360)
     slots["img-ic"] = data_uri("inversiones-caceres/logo-2-color.png", 900)

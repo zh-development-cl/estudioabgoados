@@ -1,0 +1,19 @@
+{
+  "_nota": "Datos del sitio. Los marcados con «PENDIENTE» deben confirmarse con el cliente antes de publicar.",
+  "dominio": "https://abogadosrematesjudiciales.cl",
+  "nombre": "Abogados Remates Judiciales",
+  "nombre_corto": "Remates Judiciales",
+  "telefono": "+56 9 8659 7988",
+  "telefono_href": "+56986597988",
+  "whatsapp": "56986597988",
+  "_whatsapp_nota": "PENDIENTE: número propio de la marca. Hoy usa el de administración de Cáceres & Camiruaga.",
+  "email": "",
+  "_email_nota": "PENDIENTE: correo de contacto de la marca. Mientras tanto los contactos entran por el formulario.",
+  "direccion": "Santa Lucía 270, oficina 701",
+  "comuna": "Santiago",
+  "region": "Región Metropolitana",
+  "pais": "CL",
+  "mapa": "https://maps.google.com/?q=Santa+Luc%C3%ADa+270,+Santiago,+Chile",
+  "estudio_aliado": "Cáceres & Camiruaga Abogados",
+  "estudio_aliado_url": "https://www.caceresycamiruaga.cl/"
+}

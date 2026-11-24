@@ -183,7 +183,7 @@ def gavel_head(cx, length, h, cap_w, cap_h, gap, base=0.0):
     return union(body, cap(x0), cap(x1 - cap_w))
 
 
-def mark_r(height=100.0):
+def mark_r(height=100.0, parts=False):
     """La R de martillo: el asta de la R es el mango y su pie, la cabeza de un
     martillo de remate. Un solo color. La base del martillo queda a la misma
     altura que el pie de la pata inclinada.
@@ -214,7 +214,14 @@ def mark_r(height=100.0):
     g = union(minus(g, rrect(420, -100, 400, 120)), leg, foot)
     # el asta baja hasta meterse un poco en la cabeza, para que no quede ranura
     letter = minus(g, rrect(0, base - h + 2, 330, h + 20))
-    letter = union(letter, gavel_head(stem_center, length, h, cap_w, cap_h, gap, base))
+    head = gavel_head(stem_center, length, h, cap_w, cap_h, gap, base)
+    if parts:
+        # Letra y cabeza por separado, con la misma escala (para animarlas)
+        x0, y0, x1, y1 = bbox([letter, head])
+        s = height / (y1 - y0)
+        return {"letter": place(letter, -x0 * s, -y0 * s, s), "head": place(head, -x0 * s, -y0 * s, s),
+                "w": (x1 - x0) * s, "h": height}
+    letter = union(letter, head)
     x0, y0, x1, y1 = bbox([letter])
     s = height / (y1 - y0)
     letter = place(letter, -x0 * s, -y0 * s, s)

@@ -169,32 +169,34 @@ def period(size, x_after):
     return circle(x_after + size * 0.05 + r, -r, r)
 
 
-def gavel_head(cx, length, h, cap_w, cap_h, gap):
-    """Cabeza de martillo de perfil, apoyada en la línea base: un cuerpo y dos
-    extremos un poco más altos y redondeados, como un tambor."""
+def gavel_head(cx, length, h, cap_w, cap_h, gap, base=0.0):
+    """Cabeza de martillo de perfil, con la base plana en y = `base`: un cuerpo y
+    dos extremos más altos, redondeados solo arriba, como un tambor."""
     x0, x1 = cx - length / 2, cx + length / 2
-    mid = -cap_h / 2
-    body = rrect(x0 + cap_w + gap, mid - h / 2, length - 2 * (cap_w + gap), h, 2)
     rad = min(cap_w, cap_h) * 0.45
-    return union(
-        body,
-        rrect(x0, mid - cap_h / 2, cap_w, cap_h, rad),
-        rrect(x1 - cap_w, mid - cap_h / 2, cap_w, cap_h, rad),
-    )
+
+    def cap(x):  # esquinas de arriba redondeadas, base recta
+        return union(rrect(x, base - cap_h, cap_w, cap_h, rad),
+                     rrect(x, base - cap_h / 2, cap_w, cap_h / 2))
+
+    body = rrect(x0 + cap_w + gap, base - h, length - 2 * (cap_w + gap), h)
+    return union(body, cap(x0), cap(x1 - cap_w))
 
 
 def mark_r(height=100.0):
     """La R de martillo: el asta de la R es el mango y su pie, la cabeza de un
-    martillo de remate. Un solo color.
+    martillo de remate. Un solo color. La base del martillo queda a la misma
+    altura que el pie de la pata inclinada.
 
     Devuelve la letra con su borde superior en y = 0, lista para ubicar.
     """
     g = SERIF.glyph("R")
-    length, h, cap_w, cap_h, gap = 292.0, 48.0, 40.0, 76.0, 8.0
+    base = bbox([g])[3]                      # pie de la pata, con su leve sobrepaso
+    length, h, cap_w, cap_h, gap = 292.0, 52.0, 40.0, 62.0, 8.0
     stem_center = 168.5                      # centro del asta de la R de Pagella
-    cut = cap_h / 2 + h / 2
-    letter = minus(g, rrect(0, -cut, 330, cut + 20))
-    letter = union(letter, gavel_head(stem_center, length, h, cap_w, cap_h, gap))
+    # el asta baja hasta meterse un poco en la cabeza, para que no quede ranura
+    letter = minus(g, rrect(0, base - h + 2, 330, h + 20))
+    letter = union(letter, gavel_head(stem_center, length, h, cap_w, cap_h, gap, base))
     x0, y0, x1, y1 = bbox([letter])
     s = height / (y1 - y0)
     letter = place(letter, -x0 * s, -y0 * s, s)

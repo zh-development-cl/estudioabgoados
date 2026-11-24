@@ -3,5 +3,5 @@ __pycache__/
 node_modules/
 .wrangler/
 .dev.vars
-wrangler.dev.jsonc
-src/static.gen.js
+sites/*/wrangler.dev.jsonc
+sites/*/src/static.gen.js
